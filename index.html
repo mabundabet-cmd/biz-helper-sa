@@ -3,34 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Biz Helper SA – AI for small businesses</title>
+<title>Biz Helper SA – Dashboard</title>
 <style>
 :root{--bg:#fbf8f1;--card:#fff;--ink:#1d2b24;--mute:#5f6b64;--brand:#0b7a4b;--brand-ink:#fff;--line:#e3ded2;--accent:#f2b705;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32;--accent:#f2b705}}
-:root[data-theme="dark"]{--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32;--accent:#f2b705}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32}}
+:root[data-theme="dark"]{--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:560px;margin:0 auto;padding:20px 16px 48px}
-h1{font-size:26px;line-height:1.2;margin:8px 0 6px}
-.sub{color:var(--mute);margin:0 0 18px}
-.bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--accent));margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
-label:first-child{margin-top:0}
-input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 48px}
+.bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--accent));margin-bottom:12px}
+h1{font-size:24px;line-height:1.2;margin:4px 0 4px}
+h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.stats{display:flex;gap:10px;margin-bottom:12px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:24px}
+.stat span{color:var(--mute);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.act{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:12px 4px;font-size:13px;line-height:1.3}
+.act i{display:block;font-style:normal;font-size:24px}
+label{display:block;font-weight:600;font-size:14px;margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 textarea{min-height:96px;resize:vertical}
 button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
-.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:var(--brand-ink);font-size:17px}
+.go{width:100%;margin-top:12px;padding:13px;background:var(--brand);color:var(--brand-ink);font-size:16px}
 .go:disabled{opacity:.6}
-.tabs{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
-.tab{flex:1;padding:9px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);white-space:nowrap;font-size:14px}
+.back{background:none;color:var(--brand);padding:6px 0;margin-bottom:6px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;padding:9px 6px;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:14px}
 .tab[aria-selected="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .out{white-space:pre-wrap;word-wrap:break-word;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:80px}
 .row{display:flex;gap:8px;margin-top:10px}
 .row button,.row a{flex:1;text-align:center;padding:11px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
 .copy{background:var(--ink);color:var(--bg)}
 .wa{background:#25d366;color:#06240f}
-.msg{color:var(--mute);font-size:14px;margin-top:10px}
+.item{display:flex;justify-content:space-between;width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:10px 12px;margin-top:6px;font-weight:600;text-align:left}
+.item span{color:var(--mute);font-weight:400;font-size:13px}
+.msg{color:var(--mute);font-size:14px;margin-top:8px}
 .err{color:#c0392b}
 .hide{display:none}
 </style>
@@ -38,76 +48,136 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 <body>
 <div class="wrap">
   <div class="bar"></div>
-  <h1>Biz Helper SA</h1>
-  <p class="sub">Tell us about your business. Get a price list, a Facebook post and a WhatsApp message in seconds.</p>
 
-  <div class="card">
-    <label for="name">Business name</label>
-    <input id="name" placeholder="e.g. Mama Thandi’s Spaza">
-    <label for="type">What kind of business?</label>
-    <input id="type" placeholder="e.g. spaza shop, hair salon, kota stand">
-    <label for="items">What do you sell? (add prices)</label>
-    <textarea id="items" placeholder="e.g. bread R18, milk R25, airtime from R5, cooldrink R15"></textarea>
-    <label for="where">Where are you?</label>
-    <input id="where" placeholder="e.g. Mamelodi, Pretoria">
-    <label for="lang">Language</label>
-    <select id="lang">
-      <option>English</option>
-      <option>isiZulu</option>
-      <option>English + isiZulu mix</option>
-      <option>isiXhosa</option>
-      <option>Sesotho</option>
-      <option>Afrikaans</option>
-    </select>
-    <button class="go" id="go">Create my content ✨</button>
-    <div class="msg" id="status"></div>
-  </div>
+  <section id="home">
+    <h1 id="hello">Welcome 👋</h1>
+    <p class="sub">Your small business helper. Create content in seconds.</p>
+    <div class="stats">
+      <div class="stat"><b id="cnt">0</b><span>Things created</span></div>
+      <div class="stat"><b id="last">–</b><span>Last created</span></div>
+    </div>
+    <div class="grid">
+      <button class="act" data-k="price_list"><i>🏷️</i>Price list</button>
+      <button class="act" data-k="facebook_post"><i>📣</i>Facebook post</button>
+      <button class="act" data-k="whatsapp_message"><i>💬</i>WhatsApp message</button>
+    </div>
+    <div class="card">
+      <h2>My business</h2>
+      <label for="pname">Business name</label>
+      <input id="pname" placeholder="e.g. Mama Thandi’s Spaza">
+      <label for="ptype">Kind of business</label>
+      <input id="ptype" placeholder="e.g. spaza shop, hair salon, kota stand">
+      <label for="pwhere">Where are you?</label>
+      <input id="pwhere" placeholder="e.g. Mamelodi, Pretoria">
+      <label for="plang">Language</label>
+      <select id="plang"><option>English</option><option>isiZulu</option><option>English + isiZulu mix</option><option>isiXhosa</option><option>Sesotho</option><option>Afrikaans</option></select>
+      <button class="go" id="save">Save my business</button>
+      <div class="msg" id="pmsg"></div>
+    </div>
+    <div class="card">
+      <h2>Recent</h2>
+      <div id="recent"></div>
+    </div>
+  </section>
 
-  <div class="card hide" id="results">
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-k="price_list" aria-selected="true">Price list</button>
-      <button class="tab" role="tab" data-k="facebook_post" aria-selected="false">Facebook</button>
-      <button class="tab" role="tab" data-k="whatsapp_message" aria-selected="false">WhatsApp</button>
+  <section id="create" class="hide">
+    <button class="back" id="back">← Home</button>
+    <div class="card" id="formcard">
+      <label for="items">What do you sell? (add prices)</label>
+      <textarea id="items" placeholder="e.g. bread R18, milk R25, airtime from R5, cooldrink R15"></textarea>
+      <button class="go" id="go">Create my content ✨</button>
+      <div class="msg" id="status"></div>
     </div>
-    <div class="out" id="out"></div>
-    <div class="row">
-      <button class="copy" id="copy">Copy</button>
-      <a class="wa" id="wa" href="https://wa.me/" target="_blank" rel="noopener">Send on WhatsApp</a>
+    <div class="card hide" id="results">
+      <div class="tabs">
+        <button class="tab" data-k="price_list" aria-selected="true">Price list</button>
+        <button class="tab" data-k="facebook_post" aria-selected="false">Facebook</button>
+        <button class="tab" data-k="whatsapp_message" aria-selected="false">WhatsApp</button>
+      </div>
+      <div class="out" id="out"></div>
+      <div class="row">
+        <button class="copy" id="copy">Copy</button>
+        <a class="wa" id="wa" href="https://wa.me/" target="_blank" rel="noopener">Send on WhatsApp</a>
+      </div>
+      <div class="msg" id="copied"></div>
     </div>
-    <div class="msg" id="copied"></div>
-  </div>
+  </section>
 </div>
 
 <script>
 (function(){
   // Put your Cloudflare Worker address here, e.g. "https://biz-helper-sa.yourname.workers.dev"
   var API_URL="";
+  var $=function(i){return document.getElementById(i)};
+  var sample=null,data=null,focus="price_list";
+  var P={name:"",type:"",where:"",lang:"English"},H=[];
 
-  var $=function(id){return document.getElementById(id)};
-  var data=null, sample=null;
+  function ls(k,v){
+    try{
+      if(v===undefined){var r=localStorage.getItem(k);return r?JSON.parse(r):null;}
+      localStorage.setItem(k,JSON.stringify(v));
+    }catch(e){return null;}
+  }
+  P=ls("bh_profile")||P; H=ls("bh_hist")||[];
+  if(!Array.isArray(H)){H=[];}
 
-  // Inside Claude the AI is built in; anywhere else the Worker is used.
-  if(window.claude&&claude.use){
-    claude.use("sample").then(function(s){sample=s;}).catch(function(){sample=null;});
+  if(window.claude&&claude.use){claude.use("sample").then(function(s){sample=s;}).catch(function(){});}
+
+  function view(v){
+    $("home").classList.toggle("hide",v!=="home");
+    $("create").classList.toggle("hide",v!=="create");
+    window.scrollTo(0,0);
+    if(v==="home"){renderHome();}
+  }
+
+  function renderHome(){
+    $("hello").textContent=P.name?"Welcome, "+P.name+" 👋":"Welcome 👋";
+    $("cnt").textContent=H.length;
+    $("last").textContent=H.length?new Date(H[0].ts).toLocaleDateString():"–";
+    $("pname").value=P.name||""; $("ptype").value=P.type||""; $("pwhere").value=P.where||""; $("plang").value=P.lang||"English";
+    var box=$("recent"); box.textContent="";
+    if(!H.length){var m=document.createElement("div");m.className="msg";m.textContent="Nothing yet. Tap a button above to start.";box.appendChild(m);return;}
+    H.forEach(function(h,i){
+      var b=document.createElement("button");b.className="item";
+      var a=document.createElement("div");a.textContent=h.name||"My business";
+      var s=document.createElement("span");s.textContent=new Date(h.ts).toLocaleDateString();
+      b.appendChild(a);b.appendChild(s);
+      b.addEventListener("click",function(){data=h.data;$("formcard").classList.add("hide");view("create");$("results").classList.remove("hide");show("price_list");});
+      box.appendChild(b);
+    });
   }
 
   function show(k){
-    var tabs=document.querySelectorAll(".tab");
-    for(var i=0;i<tabs.length;i++){tabs[i].setAttribute("aria-selected",tabs[i].dataset.k===k?"true":"false");}
+    var t=document.querySelectorAll(".tab");
+    for(var i=0;i<t.length;i++){t[i].setAttribute("aria-selected",t[i].dataset.k===k?"true":"false");}
     var text=(data&&data[k])||"";
     $("out").textContent=text;
     $("wa").href="https://wa.me/?text="+encodeURIComponent(text);
     $("copied").textContent="";
   }
 
-  var tabEls=document.querySelectorAll(".tab");
-  for(var i=0;i<tabEls.length;i++){tabEls[i].addEventListener("click",function(e){show(e.currentTarget.dataset.k);});}
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){tabs[i].addEventListener("click",function(e){show(e.currentTarget.dataset.k);});}
+
+  $("save").addEventListener("click",function(){
+    P={name:$("pname").value.trim(),type:$("ptype").value.trim(),where:$("pwhere").value.trim(),lang:$("plang").value};
+    ls("bh_profile",P); renderHome();
+    $("pmsg").className="msg"; $("pmsg").textContent="Saved ✅";
+  });
+
+  var acts=document.querySelectorAll(".act");
+  for(var j=0;j<acts.length;j++){acts[j].addEventListener("click",function(e){
+    if(!P.name||!P.type){$("pmsg").className="msg err";$("pmsg").textContent="Add your business name and type first, then tap Save.";return;}
+    focus=e.currentTarget.dataset.k;
+    $("formcard").classList.remove("hide"); $("results").classList.add("hide"); $("status").textContent="";
+    view("create");
+  });}
+  $("back").addEventListener("click",function(){view("home");});
 
   $("copy").addEventListener("click",function(){
     var text=$("out").textContent;
-    try{
-      navigator.clipboard.writeText(text).then(function(){$("copied").textContent="Copied ✅";},function(){$("copied").textContent="Press and hold the text to copy it.";});
-    }catch(e){$("copied").textContent="Press and hold the text to copy it.";}
+    try{navigator.clipboard.writeText(text).then(function(){$("copied").textContent="Copied ✅";},function(){$("copied").textContent="Press and hold the text to copy it.";});}
+    catch(e){$("copied").textContent="Press and hold the text to copy it.";}
   });
 
   function buildPrompt(f){
@@ -123,26 +193,23 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
   async function generate(f){
     if(sample){return await sample.json(buildPrompt(f));}
     var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});
-    if(!r.ok){var err=new Error("api");err.code="api";throw err;}
+    if(!r.ok){var e=new Error("api");e.code="api";throw e;}
     return await r.json();
   }
 
   $("go").addEventListener("click",async function(){
-    var f={name:$("name").value.trim(),type:$("type").value.trim(),items:$("items").value.trim(),where:$("where").value.trim(),lang:$("lang").value};
     var st=$("status"); st.className="msg";
-    if(!f.name||!f.type||!f.items){st.className="msg err";st.textContent="Please fill in the business name, type and what you sell.";return;}
-    if(!sample&&window.claude&&claude.use){
-      try{sample=await claude.use("sample");}catch(e){}
-    }
+    var f={name:P.name,type:P.type,where:P.where,lang:P.lang,items:$("items").value.trim()};
+    if(!f.items){st.className="msg err";st.textContent="Please type what you sell and the prices.";return;}
+    if(!sample&&window.claude&&claude.use){try{sample=await claude.use("sample");}catch(e){}}
     if(!sample&&!API_URL){st.className="msg err";st.textContent="The AI isn’t connected yet. Please check back soon.";return;}
     var btn=$("go"); btn.disabled=true; st.textContent="Writing your content…";
     try{
       var res=await generate(f);
       if(res&&typeof res==="object"&&(res.price_list||res.facebook_post||res.whatsapp_message)){
         data={price_list:String(res.price_list||""),facebook_post:String(res.facebook_post||""),whatsapp_message:String(res.whatsapp_message||"")};
-        $("results").classList.remove("hide");
-        show("price_list");
-        st.textContent="Done! Tap the tabs to see all three.";
+        H.unshift({ts:Date.now(),name:P.name,data:data}); H=H.slice(0,10); ls("bh_hist",H);
+        $("results").classList.remove("hide"); show(focus); st.textContent="Done! Tap the tabs to see all three.";
         $("results").scrollIntoView({behavior:"smooth"});
       }else{throw new Error("bad");}
     }catch(e){
@@ -151,6 +218,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
     }
     btn.disabled=false;
   });
+
+  renderHome();
 })();
 </script>
 </body>
