@@ -80,15 +80,18 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 
 <script>
 (function(){
-  var $=function(id){return document.getElementById(id)};
-  var data=null, current="price_list", sample=null;
+  // Put your Cloudflare Worker address here, e.g. "https://biz-helper-sa.yourname.workers.dev"
+  var API_URL="";
 
+  var $=function(id){return document.getElementById(id)};
+  var data=null, sample=null;
+
+  // Inside Claude the AI is built in; anywhere else the Worker is used.
   if(window.claude&&claude.use){
     claude.use("sample").then(function(s){sample=s;}).catch(function(){sample=null;});
   }
 
   function show(k){
-    current=k;
     var tabs=document.querySelectorAll(".tab");
     for(var i=0;i<tabs.length;i++){tabs[i].setAttribute("aria-selected",tabs[i].dataset.k===k?"true":"false");}
     var text=(data&&data[k])||"";
@@ -97,8 +100,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
     $("copied").textContent="";
   }
 
-  var tabs=document.querySelectorAll(".tab");
-  for(var i=0;i<tabs.length;i++){tabs[i].addEventListener("click",function(e){show(e.currentTarget.dataset.k);});}
+  var tabEls=document.querySelectorAll(".tab");
+  for(var i=0;i<tabEls.length;i++){tabEls[i].addEventListener("click",function(e){show(e.currentTarget.dataset.k);});}
 
   $("copy").addEventListener("click",function(){
     var text=$("out").textContent;
@@ -107,26 +110,35 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
     }catch(e){$("copied").textContent="Press and hold the text to copy it.";}
   });
 
-  $("go").addEventListener("click",async function(){
-    var name=$("name").value.trim(), type=$("type").value.trim(), items=$("items").value.trim();
-    var where=$("where").value.trim(), lang=$("lang").value;
-    var st=$("status"); st.className="msg";
-    if(!name||!type||!items){st.className="msg err";st.textContent="Please fill in the business name, type and what you sell.";return;}
-    if(!sample){
-      try{ if(window.claude&&claude.use){sample=await claude.use("sample");} }catch(e){}
-      if(!sample){st.className="msg err";st.textContent="The AI isn’t available here. Open this page inside Claude to use it.";return;}
-    }
-    var btn=$("go"); btn.disabled=true; st.textContent="Writing your content…";
-    var prompt="You help small South African businesses (spaza shops, salons, street food, township and informal traders). "+
-      "Write simple, warm, friendly marketing content in "+lang+". Use South African Rand (R) and everyday local words. Do not invent prices; use only the items and prices given. "+
-      "Business name: "+name+"\nType: "+type+"\nLocation: "+(where||"not given")+"\nItems and prices: "+items+"\n\n"+
+  function buildPrompt(f){
+    return "You help small South African businesses (spaza shops, salons, street food, township and informal traders). "+
+      "Write simple, warm, friendly marketing content in "+f.lang+". Use South African Rand (R) and everyday local words. Do not invent prices; use only the items and prices given. "+
+      "Business name: "+f.name+"\nType: "+f.type+"\nLocation: "+(f.where||"not given")+"\nItems and prices: "+f.items+"\n\n"+
       "Return ONLY JSON with exactly these string keys: "+
       "\"price_list\" (a neat price list with a title and one item per line, with emoji, ready to share), "+
       "\"facebook_post\" (an eye-catching Facebook post of 60-100 words with a few emoji and 3-5 hashtags, ending with a call to action), "+
       "\"whatsapp_message\" (a short friendly WhatsApp broadcast message under 70 words that customers can reply to).";
+  }
+
+  async function generate(f){
+    if(sample){return await sample.json(buildPrompt(f));}
+    var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});
+    if(!r.ok){var err=new Error("api");err.code="api";throw err;}
+    return await r.json();
+  }
+
+  $("go").addEventListener("click",async function(){
+    var f={name:$("name").value.trim(),type:$("type").value.trim(),items:$("items").value.trim(),where:$("where").value.trim(),lang:$("lang").value};
+    var st=$("status"); st.className="msg";
+    if(!f.name||!f.type||!f.items){st.className="msg err";st.textContent="Please fill in the business name, type and what you sell.";return;}
+    if(!sample&&window.claude&&claude.use){
+      try{sample=await claude.use("sample");}catch(e){}
+    }
+    if(!sample&&!API_URL){st.className="msg err";st.textContent="The AI isn’t connected yet. Please check back soon.";return;}
+    var btn=$("go"); btn.disabled=true; st.textContent="Writing your content…";
     try{
-      var res=await sample.json(prompt);
-      if(res&&typeof res==="object"){
+      var res=await generate(f);
+      if(res&&typeof res==="object"&&(res.price_list||res.facebook_post||res.whatsapp_message)){
         data={price_list:String(res.price_list||""),facebook_post:String(res.facebook_post||""),whatsapp_message:String(res.whatsapp_message||"")};
         $("results").classList.remove("hide");
         show("price_list");
