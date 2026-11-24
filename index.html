@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biz Helper SA – AI for small businesses</title>
+<style>
+:root{--bg:#fbf8f1;--card:#fff;--ink:#1d2b24;--mute:#5f6b64;--brand:#0b7a4b;--brand-ink:#fff;--line:#e3ded2;--accent:#f2b705;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32;--accent:#f2b705}}
+:root[data-theme="dark"]{--bg:#101a15;--card:#18251e;--ink:#eef3ef;--mute:#9db0a4;--brand:#2bb673;--brand-ink:#06150d;--line:#2a3b32;--accent:#f2b705}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:26px;line-height:1.2;margin:8px 0 6px}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--brand),var(--accent));margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+textarea{min-height:96px;resize:vertical}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
+.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:var(--brand-ink);font-size:17px}
+.go:disabled{opacity:.6}
+.tabs{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.tab{flex:1;padding:9px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);white-space:nowrap;font-size:14px}
+.tab[aria-selected="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.out{white-space:pre-wrap;word-wrap:break-word;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:80px}
+.row{display:flex;gap:8px;margin-top:10px}
+.row button,.row a{flex:1;text-align:center;padding:11px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
+.copy{background:var(--ink);color:var(--bg)}
+.wa{background:#25d366;color:#06240f}
+.msg{color:var(--mute);font-size:14px;margin-top:10px}
+.err{color:#c0392b}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar"></div>
+  <h1>Biz Helper SA</h1>
+  <p class="sub">Tell us about your business. Get a price list, a Facebook post and a WhatsApp message in seconds.</p>
+
+  <div class="card">
+    <label for="name">Business name</label>
+    <input id="name" placeholder="e.g. Mama Thandi’s Spaza">
+    <label for="type">What kind of business?</label>
+    <input id="type" placeholder="e.g. spaza shop, hair salon, kota stand">
+    <label for="items">What do you sell? (add prices)</label>
+    <textarea id="items" placeholder="e.g. bread R18, milk R25, airtime from R5, cooldrink R15"></textarea>
+    <label for="where">Where are you?</label>
+    <input id="where" placeholder="e.g. Mamelodi, Pretoria">
+    <label for="lang">Language</label>
+    <select id="lang">
+      <option>English</option>
+      <option>isiZulu</option>
+      <option>English + isiZulu mix</option>
+      <option>isiXhosa</option>
+      <option>Sesotho</option>
+      <option>Afrikaans</option>
+    </select>
+    <button class="go" id="go">Create my content ✨</button>
+    <div class="msg" id="status"></div>
+  </div>
+
+  <div class="card hide" id="results">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-k="price_list" aria-selected="true">Price list</button>
+      <button class="tab" role="tab" data-k="facebook_post" aria-selected="false">Facebook</button>
+      <button class="tab" role="tab" data-k="whatsapp_message" aria-selected="false">WhatsApp</button>
+    </div>
+    <div class="out" id="out"></div>
+    <div class="row">
+      <button class="copy" id="copy">Copy</button>
+      <a class="wa" id="wa" href="https://wa.me/" target="_blank" rel="noopener">Send on WhatsApp</a>
+    </div>
+    <div class="msg" id="copied"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var data=null, current="price_list", sample=null;
+
+  if(window.claude&&claude.use){
+    claude.use("sample").then(function(s){sample=s;}).catch(function(){sample=null;});
+  }
+
+  function show(k){
+    current=k;
+    var tabs=document.querySelectorAll(".tab");
+    for(var i=0;i<tabs.length;i++){tabs[i].setAttribute("aria-selected",tabs[i].dataset.k===k?"true":"false");}
+    var text=(data&&data[k])||"";
+    $("out").textContent=text;
+    $("wa").href="https://wa.me/?text="+encodeURIComponent(text);
+    $("copied").textContent="";
+  }
+
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){tabs[i].addEventListener("click",function(e){show(e.currentTarget.dataset.k);});}
+
+  $("copy").addEventListener("click",function(){
+    var text=$("out").textContent;
+    try{
+      navigator.clipboard.writeText(text).then(function(){$("copied").textContent="Copied ✅";},function(){$("copied").textContent="Press and hold the text to copy it.";});
+    }catch(e){$("copied").textContent="Press and hold the text to copy it.";}
+  });
+
+  $("go").addEventListener("click",async function(){
+    var name=$("name").value.trim(), type=$("type").value.trim(), items=$("items").value.trim();
+    var where=$("where").value.trim(), lang=$("lang").value;
+    var st=$("status"); st.className="msg";
+    if(!name||!type||!items){st.className="msg err";st.textContent="Please fill in the business name, type and what you sell.";return;}
+    if(!sample){
+      try{ if(window.claude&&claude.use){sample=await claude.use("sample");} }catch(e){}
+      if(!sample){st.className="msg err";st.textContent="The AI isn’t available here. Open this page inside Claude to use it.";return;}
+    }
+    var btn=$("go"); btn.disabled=true; st.textContent="Writing your content…";
+    var prompt="You help small South African businesses (spaza shops, salons, street food, township and informal traders). "+
+      "Write simple, warm, friendly marketing content in "+lang+". Use South African Rand (R) and everyday local words. Do not invent prices; use only the items and prices given. "+
+      "Business name: "+name+"\nType: "+type+"\nLocation: "+(where||"not given")+"\nItems and prices: "+items+"\n\n"+
+      "Return ONLY JSON with exactly these string keys: "+
+      "\"price_list\" (a neat price list with a title and one item per line, with emoji, ready to share), "+
+      "\"facebook_post\" (an eye-catching Facebook post of 60-100 words with a few emoji and 3-5 hashtags, ending with a call to action), "+
+      "\"whatsapp_message\" (a short friendly WhatsApp broadcast message under 70 words that customers can reply to).";
+    try{
+      var res=await sample.json(prompt);
+      if(res&&typeof res==="object"){
+        data={price_list:String(res.price_list||""),facebook_post:String(res.facebook_post||""),whatsapp_message:String(res.whatsapp_message||"")};
+        $("results").classList.remove("hide");
+        show("price_list");
+        st.textContent="Done! Tap the tabs to see all three.";
+        $("results").scrollIntoView({behavior:"smooth"});
+      }else{throw new Error("bad");}
+    }catch(e){
+      st.className="msg err";
+      st.textContent=(e&&e.code==="not_granted")?"Please allow the AI request to continue.":"Something went wrong. Please try again.";
+    }
+    btn.disabled=false;
+  });
+})();
+</script>
+</body>
+</html>
