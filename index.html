@@ -56,10 +56,19 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 .err{color:#c0392b}
 .brand{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#0b7a4b,#14935c);color:#fff;border-radius:16px;padding:12px 14px;margin-bottom:14px}.brand img{height:62px;width:auto;max-width:100%;display:block}.brand b{display:block;font-size:20px;line-height:1.1}.brand span{font-size:12px;letter-spacing:2px;color:#ffd54a;font-weight:700}
 .bar{display:none}
+#splash{position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;background:linear-gradient(135deg,#0b7a4b,#14935c);transition:opacity .6s ease,visibility .6s;animation:autohide .1s 6s forwards}
+#splash img{width:min(78vw,340px);animation:pop .9s cubic-bezier(.2,1.4,.4,1) both}
+#splash p{color:#ffd54a;font-weight:700;letter-spacing:2px;margin:0;animation:rise .8s .5s both}
+#splash.out{opacity:0;visibility:hidden}
+@keyframes pop{from{transform:scale(.3) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes autohide{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#splash img,#splash p{animation:none}}
 .hide{display:none}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><img src="logo-white.svg" alt="Biz Helper South Africa"><p>WELCOME 👋</p></div>
 <div class="wrap">
   <div class="brand"><img src="logo-white.svg" alt="Biz Helper South Africa"></div>
 
@@ -234,6 +243,17 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
   });
 
   renderHome();
+})();
+</script>
+<script>
+(function(){
+  var s=document.getElementById("splash"); if(!s){return;}
+  var seen=false;
+  try{seen=sessionStorage.getItem("bh_splash")==="1";sessionStorage.setItem("bh_splash","1");}catch(e){}
+  if(seen){s.remove();return;}
+  function close(){s.classList.add("out");setTimeout(function(){s.remove();},700);}
+  s.addEventListener("click",close);
+  setTimeout(close,2600);
 })();
 </script>
 </body>
