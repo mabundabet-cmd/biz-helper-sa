@@ -66,13 +66,28 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){#splash img,#splash p{animation:none}}
 .hide{display:none}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
 <div id="splash" aria-hidden="true"><img src="logo-white.svg" alt="Biz Helper South Africa"><p>WELCOME 👋</p></div>
 <div class="wrap">
   <div class="brand"><img src="logo-white.svg" alt="Biz Helper South Africa"></div>
 
-  <section id="home">
+  <section id="auth" class="hide">
+    <h1>Log in 👋</h1>
+    <p class="sub">Log in or create a free account to use Biz Helper.</p>
+    <div class="card">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      <label for="pass">Password (6 or more characters)</label>
+      <input id="pass" type="password" autocomplete="current-password">
+      <button class="go" id="login">Log in</button>
+      <button class="go" id="signup" style="background:var(--ink);color:var(--bg)">Create account</button>
+      <div class="msg" id="amsg"></div>
+    </div>
+  </section>
+
+  <section id="home" class="hide">
     <h1 id="hello">Welcome 👋</h1>
     <p class="sub">Your small business helper. Create content in seconds.</p>
     <div class="stats">
@@ -101,6 +116,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
       <h2>Recent</h2>
       <div id="recent"></div>
     </div>
+    <div class="msg" id="who"></div>
+    <button class="back" id="logout">Log out</button>
   </section>
 
   <section id="create" class="hide">
@@ -132,6 +149,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
   // Put your Cloudflare Worker address here, e.g. "https://biz-helper-sa.yourname.workers.dev"
   var API_URL="https://whyiikmhzfmdknbwxmqj.supabase.co/functions/v1/generate";
   var API_KEY="sb_publishable_4FvzWpzEfL6hL47jaEFdGQ_n07dnN5l";
+  var SUPA_URL="https://whyiikmhzfmdknbwxmqj.supabase.co";
+  var sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPA_URL,API_KEY):null;
   var $=function(i){return document.getElementById(i)};
   var sample=null,data=null,focus="price_list";
   var P={name:"",type:"",where:"",lang:"English"},H=[];
@@ -148,6 +167,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
   if(window.claude&&claude.use){claude.use("sample").then(function(s){sample=s;}).catch(function(){});}
 
   function view(v){
+    $("auth").classList.toggle("hide",v!=="auth");
     $("home").classList.toggle("hide",v!=="home");
     $("create").classList.toggle("hide",v!=="create");
     window.scrollTo(0,0);
@@ -216,7 +236,9 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 
   async function generate(f){
     if(sample){return await sample.json(buildPrompt(f));}
-    var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":API_KEY},body:JSON.stringify(f)});
+    var ses=sb?(await sb.auth.getSession()).data.session:null;
+    if(!ses){var le=new Error("login");le.code="login";throw le;}
+    var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":API_KEY,"Authorization":"Bearer "+ses.access_token},body:JSON.stringify(f)});
     if(!r.ok){var e=new Error("api");e.code="api";throw e;}
     return await r.json();
   }
@@ -238,12 +260,48 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
       }else{throw new Error("bad");}
     }catch(e){
       st.className="msg err";
-      st.textContent=(e&&e.code==="not_granted")?"Please allow the AI request to continue.":"Something went wrong. Please try again.";
+      st.textContent=(e&&e.code==="login")?"Please log in again.":(e&&e.code==="not_granted")?"Please allow the AI request to continue.":"Something went wrong. Please try again.";
     }
     btn.disabled=false;
   });
 
-  renderHome();
+function amsg(t,err){var m=$("amsg");m.className=err?"msg err":"msg";m.textContent=t;}
+  async function enter(session){
+    $("who").textContent=session&&session.user?"Logged in as "+session.user.email:"";
+    view("home");
+  }
+  $("login").addEventListener("click",async function(){
+    if(!sb){amsg("Login is not available right now.",true);return;}
+    var em=$("email").value.trim(),pw=$("pass").value;
+    if(!em||pw.length<6){amsg("Enter your email and a password of 6 or more characters.",true);return;}
+    amsg("Logging in…");
+    var r=await sb.auth.signInWithPassword({email:em,password:pw});
+    if(r.error){amsg(r.error.message,true);return;}
+    amsg(""); enter(r.data.session);
+  });
+  $("signup").addEventListener("click",async function(){
+    if(!sb){amsg("Login is not available right now.",true);return;}
+    var em=$("email").value.trim(),pw=$("pass").value;
+    if(!em||pw.length<6){amsg("Enter your email and a password of 6 or more characters.",true);return;}
+    amsg("Creating your account…");
+    var r=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});
+    if(r.error){amsg(r.error.message,true);return;}
+    if(r.data&&r.data.session){amsg("");enter(r.data.session);}
+    else{amsg("Almost done! Check your email and tap the link to confirm, then log in.");}
+  });
+  $("logout").addEventListener("click",async function(){
+    if(sb){await sb.auth.signOut();}
+    view("auth");
+  });
+  (async function(){
+    if(!sb){renderHome();view("home");return;}
+    var s=await sb.auth.getSession();
+    if(s.data&&s.data.session){enter(s.data.session);}else{view("auth");}
+    sb.auth.onAuthStateChange(function(ev,sess){
+      if(ev==="SIGNED_OUT"){view("auth");}
+      else if(ev==="SIGNED_IN"&&sess&&!$("auth").classList.contains("hide")){enter(sess);}
+    });
+  })();
 })();
 </script>
 <script>
