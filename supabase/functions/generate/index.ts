@@ -35,6 +35,19 @@ Deno.serve(async (req: Request) => {
   const key = Deno.env.get("GROQ_API_KEY");
   if (!key) return reply({ error: "Server not set up" }, 500, cors);
 
+  // Only logged-in users may use the AI: ask Supabase Auth who this token belongs to.
+  const authHeader = req.headers.get("Authorization") || "";
+  const apikey = req.headers.get("apikey") || "";
+  const base = Deno.env.get("SUPABASE_URL") || "";
+  if (!authHeader.startsWith("Bearer ") || !apikey || !base) return reply({ error: "Please log in" }, 401, cors);
+  let who: Response;
+  try {
+    who = await fetch(base + "/auth/v1/user", { headers: { Authorization: authHeader, apikey } });
+  } catch (_e) {
+    return reply({ error: "Login check failed" }, 502, cors);
+  }
+  if (!who.ok) return reply({ error: "Please log in" }, 401, cors);
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
