@@ -130,7 +130,8 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 <script>
 (function(){
   // Put your Cloudflare Worker address here, e.g. "https://biz-helper-sa.yourname.workers.dev"
-  var API_URL="";
+  var API_URL="https://whyiikmhzfmdknbwxmqj.supabase.co/functions/v1/generate";
+  var API_KEY="sb_publishable_4FvzWpzEfL6hL47jaEFdGQ_n07dnN5l";
   var $=function(i){return document.getElementById(i)};
   var sample=null,data=null,focus="price_list";
   var P={name:"",type:"",where:"",lang:"English"},H=[];
@@ -215,7 +216,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;cursor:pointer}
 
   async function generate(f){
     if(sample){return await sample.json(buildPrompt(f));}
-    var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});
+    var r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":API_KEY},body:JSON.stringify(f)});
     if(!r.ok){var e=new Error("api");e.code="api";throw e;}
     return await r.json();
   }
